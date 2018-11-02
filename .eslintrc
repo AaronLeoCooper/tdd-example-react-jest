@@ -1,0 +1,12 @@
+{
+  "extends": ["netflix-dea"],
+  "env": {
+    "jest": true
+  },
+  "rules": {
+    "semi": [2, "always"],
+    "class-methods-use-this": "off",
+    "curly": [2, "all"],
+    "no-extra-parens": "off"
+  }
+}
