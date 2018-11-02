@@ -1,0 +1,26 @@
+.UsersList_fetching {
+  margin: 20px;
+  padding: 20px;
+  font-weight: bold;
+}
+
+.UsersList_user {
+  margin: 20px;
+  padding: 20px;
+  background-color: #eee;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  align-items: center;
+}
+
+.UsersList_avatar {
+  width: 200px;
+  height: 200px;
+  margin-right: 20px;
+  display: inline-block;
+  background-color: #ddd;
+}
