@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HomePage Should render 1`] = `
+<div>
+  <header>
+    You're at: 
+    /test
+  </header>
+  <Connect(UsersListContainer) />
+</div>
+`;

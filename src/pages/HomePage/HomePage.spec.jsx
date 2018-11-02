@@ -4,9 +4,16 @@ import { shallow } from 'enzyme';
 import HomePage from './HomePage';
 
 const render = (props = {}) => shallow(
-  <HomePage {...props} />
+  <HomePage
+    location={{ pathname: '/test' }}
+    {...props}
+  />
 );
 
 describe('HomePage', () => {
-  
+  it('Should render', () => {
+    const wrapper = render();
+
+    expect(wrapper).toMatchSnapshot();
+  });
 });
