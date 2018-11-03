@@ -69,6 +69,94 @@ describe('getUsers', () => {
 Redux modules are a mixed bag because they usually contain: action creators, async action
 creators (AKA "thunks"), reducers and sometimes selectors. Let's go through an example for each one.
 
+#### Action Creators
+
+Action creators are the simplest thing to test in a redux file. They're just a function that
+returns an action object, so it's trivial to make sure they're working as expected:
+
+```js
+describe('Action Creators', () => {
+  describe('successfulFetch', () => {
+    it('Should return action with type SUCCESSFUL_FETCH', () => {
+      const result = successfulFetch({ id: '1' });
+
+      expect(result).toEqual({
+        type: SUCCESSFUL_FETCH,
+        user: { id: '1' }
+      });
+    });
+  });
+});
+```
+
+#### Async Action Creators (AKA "Thunks")
+
+A [thunk](https://github.com/reduxjs/redux-thunk) is a function that accepts `dispatch` and
+`getState` parameters and is typically returned from an action creator instead of a normal action
+object. Thunks are very powerful, in that they basically provide complete access to the redux store
+(at least, the parts you'd need) to manage asynchronous events and dispatch multiple actions.
+
+These are one of the more complicated pieces to bring under test inside a redux module, but far
+from impossible. Once you've mastered testing them, you'll almost certainly have gained a greater
+understanding for how thunks work and you'll start to get a feel for the ones that are getting too
+complex, highlighting areas you can break up into smaller functions.
+
+Since they usually involve asynchronous code, such as promises (e.g., API calls), your tests will
+also need to be able to account for this. You can choose to either: return a promise in your test
+case and make assertions inside the `.then`, or turn your test case into an `async` function and use
+`await` to ensure the thunk resolves all it's promises. Below are two examples, the first showing
+a Promise-based test case, the second showing the `async`/`await` method:
+
+```js
+describe('Thunks', () => {
+  describe('fetchUsers', () => {
+    // Promise-based test case
+    it('Should dispatch successfulFetch', () => {
+      expect.assertions(3);
+
+      UserApi.getUsers.mockResolvedValueOnce({ id: '1' });
+
+      const dispatch = jest.fn();
+
+      return fetchUsers('testing')(dispatch)
+        .then(() => {
+          expect(dispatch).toHaveBeenCalledTimes(2);
+          expect(dispatch).toHaveBeenNthCalledWith(1, startFetch());
+          expect(dispatch).toHaveBeenNthCalledWith(2, successfulFetch({ id: '1' }));
+        });
+    });
+
+    // async/await test case
+    it('Should dispatch failedFetch', async () => {
+      expect.assertions(3);
+
+      UserApi.getUsers.mockRejectedValueOnce({ message: 'ERROR' });
+
+      const dispatch = jest.fn();
+
+      await fetchUsers('testing')(dispatch);
+
+      expect(dispatch).toHaveBeenCalledTimes(2);
+      expect(dispatch).toHaveBeenNthCalledWith(1, startFetch());
+      expect(dispatch).toHaveBeenNthCalledWith(2, failedFetch('ERROR'));
+    });
+  });
+});
+```
+
+##### Q. What does `expect.assertions(3)` do?
+
+This is an optional piece of code. This tells Jest that the test should have **3** `expect`
+calls somewhere in the test (not including `.assertions(3)` itself). If exactly **3** calls are not
+made, the test will automatically fail.
+
+##### Q. Why should we add `expect.assertions` at all? My test works OK without it.
+
+Here's the thing about asynchronous test cases: it can be hard to guarantee that all your `expect`
+calls get called, especially in Promise-based tests if you forget to return the Promise inside
+the test (the test will end before the promise resolves). We're only human though, so adding
+`expect.assertions` will force the test to fail in times when we've not wrote our test correctly.
+
 #### Reducers
 
 Since reducers should always be just a pure function, it's easy to test them, just as you would
@@ -77,32 +165,30 @@ to test all cases that a reducer supports, but also to test cases that it *doesn
 Here's an example showing one expected action and one unexpected:
 
 ```js
-describe('UsersRedux', () => {
-  describe('usersReducer', () => {
-    describe('FAILED_FETCH', () => {
-      it('Should set isFetching to false and update state with error', () => {
-        const result = usersReducer(
-          { ...initialState, isFetching: true },
-          { type: FAILED_FETCH, error: 'error' }
-        );
+describe('usersReducer', () => {
+  describe('FAILED_FETCH', () => {
+    it('Should set isFetching to false and update state with error', () => {
+      const result = usersReducer(
+        { ...initialState, isFetching: true },
+        { type: FAILED_FETCH, error: 'error' }
+      );
 
-        expect(result).toEqual({
-          ...initialState,
-          isFetching: false,
-          error: 'error'
-        });
+      expect(result).toEqual({
+        ...initialState,
+        isFetching: false,
+        error: 'error'
       });
     });
+  });
 
-    describe('UNKNOWN_ACTION', () => {
-      it('Should not change the existing state', () => {
-        const result = usersReducer(
-          undefined,
-          { type: 'UNKNOWN_ACTION' }
-        );
+  describe('UNKNOWN_ACTION', () => {
+    it('Should not change the existing state', () => {
+      const result = usersReducer(
+        undefined,
+        { type: 'UNKNOWN_ACTION' }
+      );
 
-        expect(result).toEqual(initialState);
-      });
+      expect(result).toEqual(initialState);
     });
   });
 });

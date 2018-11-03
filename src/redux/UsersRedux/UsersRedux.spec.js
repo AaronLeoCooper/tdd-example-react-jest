@@ -1,8 +1,8 @@
 import usersReducer, {
-  startFetch,
   START_FETCH,
   SUCCESSFUL_FETCH,
   FAILED_FETCH,
+  startFetch,
   fetchUsers,
   failedFetch,
   successfulFetch,
@@ -24,23 +24,52 @@ describe('UsersRedux', () => {
         });
       });
     });
+
+    describe('successfulFetch', () => {
+      it('Should return action with type SUCCESSFUL_FETCH', () => {
+        const result = successfulFetch({ id: '1' });
+
+        expect(result).toEqual({
+          type: SUCCESSFUL_FETCH,
+          user: { id: '1' }
+        });
+      });
+    });
+
+    describe('failedFetch', () => {
+      it('Should return action with type FAILED_FETCH', () => {
+        const result = failedFetch('error');
+
+        expect(result).toEqual({
+          type: FAILED_FETCH,
+          error: 'error'
+        });
+      });
+    });
   });
 
   describe('Thunks', () => {
     describe('fetchUsers', () => {
-      it('Should dispatch successfulFetch', async () => {
+      // Promise-based test case
+      it('Should dispatch successfulFetch', () => {
+        expect.assertions(3);
+
         UserApi.getUsers.mockResolvedValueOnce({ id: '1' });
 
         const dispatch = jest.fn();
 
-        await fetchUsers('testing')(dispatch);
-
-        expect(dispatch).toHaveBeenCalledTimes(2);
-        expect(dispatch).toHaveBeenNthCalledWith(1, startFetch());
-        expect(dispatch).toHaveBeenNthCalledWith(2, successfulFetch({ id: '1' }));
+        return fetchUsers('testing')(dispatch)
+          .then(() => {
+            expect(dispatch).toHaveBeenCalledTimes(2);
+            expect(dispatch).toHaveBeenNthCalledWith(1, startFetch());
+            expect(dispatch).toHaveBeenNthCalledWith(2, successfulFetch({ id: '1' }));
+          });
       });
 
+      // async/await test case
       it('Should dispatch failedFetch', async () => {
+        expect.assertions(3);
+
         UserApi.getUsers.mockRejectedValueOnce({ message: 'ERROR' });
 
         const dispatch = jest.fn();
