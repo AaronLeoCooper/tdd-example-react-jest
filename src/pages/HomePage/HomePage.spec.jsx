@@ -3,16 +3,11 @@ import { shallow } from 'enzyme';
 
 import HomePage from './HomePage';
 
-const render = (props = {}) => shallow(
-  <HomePage
-    location={{ pathname: '/test' }}
-    {...props}
-  />
-);
-
 describe('HomePage', () => {
-  it('Should render', () => {
-    const wrapper = render();
+  it('Should match rendered snapshot', () => {
+    const wrapper = shallow(
+      <HomePage location={{ pathname: '/test' }}/>
+    );
 
     expect(wrapper).toMatchSnapshot();
   });

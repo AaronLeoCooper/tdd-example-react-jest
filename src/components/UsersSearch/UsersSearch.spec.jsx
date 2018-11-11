@@ -13,7 +13,7 @@ const render = (props = {}) => shallow(
 );
 
 describe('UsersSearch', () => {
-  it('Should NOT call fetchUsers when form is submitted when searchTerm is empty', () => {
+  it('Should not call fetchUsers when form is submitted when searchTerm is empty', () => {
     const wrapper = render();
 
     wrapper.find('form')

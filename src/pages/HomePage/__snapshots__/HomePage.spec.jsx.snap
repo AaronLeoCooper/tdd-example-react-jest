@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`HomePage Should render 1`] = `
+exports[`HomePage Should match rendered snapshot 1`] = `
 <div>
   <header>
     You're at: 

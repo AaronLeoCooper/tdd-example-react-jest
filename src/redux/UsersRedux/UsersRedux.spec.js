@@ -6,7 +6,10 @@ import usersReducer, {
   fetchUsers,
   failedFetch,
   successfulFetch,
-  initialState
+  initialState,
+  getUsers,
+  getIsFetching,
+  getError, NAMESPACE
 } from './UsersRedux';
 
 import * as UserApi from '../../apis/UserApi';
@@ -141,5 +144,34 @@ describe('UsersRedux', () => {
   });
 
   describe('Selectors', () => {
+    describe('getUsers', () => {
+      it('Should return users from state namespace', () => {
+        const result = getUsers({
+          [NAMESPACE]: { users: [{ id: '1' }] }
+        });
+
+        expect(result).toEqual([{ id: '1' }]);
+      });
+    });
+
+    describe('getIsFetching', () => {
+      it('Should return isFetching from state namespace', () => {
+        const result = getIsFetching({
+          [NAMESPACE]: { isFetching: true }
+        });
+
+        expect(result).toEqual(true);
+      });
+    });
+
+    describe('getError', () => {
+      it('Should return error from state namespace', () => {
+        const result = getError({
+          [NAMESPACE]: { error: 'error' }
+        });
+
+        expect(result).toEqual('error');
+      });
+    });
   });
 });
